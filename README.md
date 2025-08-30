@@ -1,4 +1,5 @@
 While I'm working on my newest project, here is my first web app: A sudoku generator
+
 I apologize for the singular file, this was before I learned Github ettiquette :<
 
 An interactive Sudoku game with multiple difficulty levels, a hint system, and dark mode for comfortable gameplay. Suitable for both beginners and advanced players.
