@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Generator</title>
+    <!-- Link to Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Body styles */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark mode body styles */
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+
+        /* Container styles */
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 900px;
+            width: 95%;
+            margin: 20px auto;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Dark mode container styles */
+        body.dark-mode .container {
+            background-color: #2d3748;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Title styles */
+        h1 {
+            color: #4a5568;
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+
+        /* Dark mode title styles */
+        body.dark-mode h1 {
+            color: #a0aec0;
+        }
+
+        /* Controls section styles */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Bottom row controls styles */
+        .controls.bottom-row {
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* Control group styles */
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        /* Select and button styles */
+        select, button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Select dropdown specific styles */
+        select {
+            background-color: #edf2f7;
+            border: 1px solid #cbd5e0;
+            color: #2d3748;
+            appearance: none;
+            padding-right: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234A5568" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        /* Dark mode select dropdown styles */
+        body.dark-mode select {
+            background-color: #4a5568;
+            border-color: #616e7f;
+            color: #e2e8f0;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23E2E8F0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        }
+
+        /* Focus styles for select and button */
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+
+        /* New Game button styles */
+        button.new-game {
+            background-color: #48bb78;
+            color: white;
+        }
+        button.new-game:hover {
+            background-color: #38a169;
+            transform: translateY(-2px);
+        }
+
+        /* Show Solution button styles */
+        button.show-solution {
+            background-color: #805ad5; /* Purple */
+            color: white;
+        }
+        button.show-solution:hover {
+            background-color: #6b46c1;
+            transform: translateY(-2px);
+        }
+        button.show-solution:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Get Hint button styles */
+        button.get-hint {
+            background-color: #3182ce;
+            color: white;
+        }
+        button.get-hint:hover {
+            background-color: #2b6cb0;
+            transform: translateY(-2px);
+        }
+        button.get-hint:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Check My Work button styles */
+        button.check-my-work {
+            background-color: #e53e3e; /* Red */
+            color: white;
+        }
+        button.check-my-work:hover {
+            background-color: #c53030;
+            transform: translateY(-2px);
+        }
+        button.check-my-work:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Dark Mode Toggle button styles */
+        button.dark-mode-toggle {
+            background-color: #4a5568;
+            color: white;
+        }
+        button.dark-mode-toggle:hover {
+            background-color: #2d3748;
+            transform: translateY(-2px);
+        }
+        /* Dark mode specific dark mode button styles */
+        body.dark-mode button.dark-mode-toggle {
+            background-color: #a0aec0;
+            color: #2d3748;
+        }
+        body.dark-mode button.dark-mode-toggle:hover {
+            background-color: #cbd5e0;
+        }
+
+        /* Timer and message bar styles */
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        /* Timer display styles */
+        .timer {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        /* Dark mode timer display styles */
+        body.dark-mode .timer {
+            color: #cbd5e0;
+        }
+
+        /* Message display styles */
+        .message {
+            font-size: 1.2em;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        /* Success message styles */
+        .message.success {
+            color: #2f855a;
+            background-color: #d4edda;
+        }
+        /* Error message styles */
+        .message.error {
+            color: #c53030;
+            background-color: #fce7e7;
+        }
+        /* Dark mode success message styles */
+        body.dark-mode .message.success {
+            color: #68d391;
+            background-color: #2f5942;
+        }
+        /* Dark mode error message styles */
+        body.dark-mode .message.error {
+            color: #fc8181;
+            background-color: #632d2d;
+        }
+
+
+        /* Sudoku grid styles */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 4px solid #4a5568;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        /* Dark mode sudoku grid styles */
+        body.dark-mode .sudoku-grid {
+            border-color: #a0aec0;
+        }
+
+        /* Input cell styles */
+        .sudoku-grid input {
+            width: 100%;
+            height: 55px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            border: 1px solid #cbd5e0;
+            background-color: #ffffff;
+            color: #4a5568;
+            box-sizing: border-box;
+            border-radius: 0;
+        }
+        /* Dark mode input cell styles */
+        body.dark-mode .sudoku-grid input {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        /* Input cell focus styles */
+        .sudoku-grid input:focus {
+            outline: none;
+            background-color: #e0f2fe;
+            box-shadow: 0 0 0 2px #63b3ed;
+        }
+        /* Dark mode input cell focus styles */
+        body.dark-mode .sudoku-grid input:focus {
+            background-color: #2a4365;
+            box-shadow: 0 0 0 2px #4299e1;
+        }
+
+        /* Pre-filled cell styles */
+        .sudoku-grid input.pre-filled {
+            background-color: #edf2f7;
+            color: #2d3748;
+            font-weight: 800;
+        }
+        /* Dark mode pre-filled cell styles */
+        body.dark-mode .sudoku-grid input.pre-filled {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        /* Incorrect cell styles */
+        .sudoku-grid input.incorrect {
+            background-color: #fbd38d;
+            color: #c05621;
+        }
+        /* Dark mode incorrect cell styles */
+            body.dark-mode .sudoku-grid input.incorrect {
+            background-color: #9b5c00;
+            color: #f6ad55;
+        }
+
+        /* Grid line styles for 3x3 blocks */
+        .sudoku-grid input:nth-child(3n) {
+            border-right: 3px solid #4a5568;
+        }
+        .sudoku-grid input:nth-child(9n) {
+            border-right: 1px solid #cbd5e0;
+        }
+        .sudoku-grid input:nth-child(9n+1) {
+            clear: both;
+        }
+
+        .sudoku-grid input:nth-child(n+19):nth-child(-n+27),
+        .sudoku-grid input:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid #4a5568;
+        }
+
+        /* Dark mode grid line styles */
+        body.dark-mode .sudoku-grid input:nth-child(3n) {
+            border-right: 3px solid #a0aec0;
+        }
+        body.dark-mode .sudoku-grid input:nth-child(n+19):nth-child(-n+27),
+        body.dark-mode .sudoku-grid input:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid #a0aec0;
+        }
+
+        /* Responsive styles for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .timer {
+                font-size: 1.5em;
+            }
+            .message {
+                font-size: 1em;
+                text-align: center;
+            }
+            .sudoku-grid input {
+                height: 45px;
+                font-size: 1.2em;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            select, button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            .sudoku-grid input {
+                height: 40px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sudoku Generator</h1>
+
+        <!-- Top row controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <button id="newGameBtn" class="new-game">New Game</button>
+            <button id="showSolutionBtn" class="show-solution">Show Solution</button>
+            <button id="darkModeToggle" class="dark-mode-toggle">Dark Mode</button>
+        </div>
+
+        <!-- Bottom row controls -->
+        <div class="controls bottom-row">
+            <button id="getHintBtn" class="get-hint">Get Hint</button>
+            <button id="checkMyWorkBtn" class="check-my-work">Check My Work</button>
+        </div>
+
+        <!-- Timer and message display area -->
+        <div class="info-bar">
+            <div id="timerDisplay" class="timer">Time: 00:00</div>
+            <div id="messageDisplay" class="message"></div>
+        </div>
+
+        <!-- Sudoku grid display area -->
+        <div id="sudokuGrid" class="sudoku-grid">
+            <!-- Sudoku cells are generated here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements by their IDs
+        const sudokuGridElement = document.getElementById('sudokuGrid');
+        const difficultySelect = document.getElementById('difficulty');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const getHintBtn = document.getElementById('getHintBtn');
+        const checkMyWorkBtn = document.getElementById('checkMyWorkBtn');
+        const showSolutionBtn = document.getElementById('showSolutionBtn');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const messageDisplay = document.getElementById('messageDisplay');
+
+        // Game state variables
+        let puzzle = []; // Current puzzle state (user input + pre-filled numbers)
+        let solution = []; // The complete, solved puzzle
+        let initialPuzzle = []; // The puzzle as it was at the start (with blanks)
+        let difficulty = 'easy'; // Current game difficulty
+        let timer = 0; // Game timer in seconds
+        let isRunning = false; // True if timer is counting
+        let isSolved = false; // True if puzzle is solved
+        let timerInterval = null; // Stores the timer's ID for stopping it
+        let highlightErrors = false; // Controls if incorrect cells are highlighted
+
+        // --- Utility Functions ---
+
+        // Randomly shuffles an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Checks if a number can be placed in a specific cell (row, column, 3x3 box)
+        function isValid(grid, row, col, num) {
+            // Check row for the number
+            for (let x = 0; x < 9; x++) {
+                if (grid[row][x] === num) return false;
+            }
+            // Check column for the number
+            for (let x = 0; x < 9; x++) {
+                if (grid[x][col] === num) return false;
+            }
+            // Check 3x3 box for the number
+            const startRow = row - (row % 3);
+            const startCol = col - (col % 3);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (grid[i + startRow][j + startCol] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        // Fills the Sudoku grid using a backtracking algorithm
+        function fillGrid(grid) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (grid[row][col] === 0) { // If cell is empty
+                        const numbers = shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+                        for (let num of numbers) {
+                            if (isValid(grid, row, col, num)) {
+                                grid[row][col] = num;
+                                if (fillGrid(grid)) { // Try filling the rest
+                                    return true;
+                                }
+                                grid[row][col] = 0; // Backtrack: undo and try another number
+                            }
+                        }
+                        return false; // No valid number found for this cell
+                    }
+                }
+            }
+            return true; // Grid filled
+        }
+
+        // Counts the number of solutions for a given Sudoku grid
+        function countSolutions(grid) {
+            let solutions = 0;
+            const solve = (currentGrid) => {
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (currentGrid[row][col] === 0) {
+                            for (let num = 1; num <= 9; num++) {
+                                if (isValid(currentGrid, row, col, num)) {
+                                    currentGrid[row][col] = num;
+                                    if (solve(currentGrid)) {
+                                        solutions++;
+                                    }
+                                    currentGrid[row][col] = 0; // Backtrack
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            };
+
+            const tempGrid = JSON.parse(JSON.stringify(grid)); // Create a copy to work on
+            solve(tempGrid);
+            return solutions;
+        }
+
+        // Checks if all cells in the puzzle are filled
+        function isPuzzleComplete(currentGrid) {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (currentGrid[r][c] === 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Compares the current puzzle to the solved solution
+        function checkSolution(currentGrid, solvedGrid) {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (currentGrid[r][c] !== solvedGrid[r][c]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Formats seconds into MM:SS string
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // --- Game Logic Functions ---
+
+        // Generates and sets up a new Sudoku puzzle
+        function generateNewPuzzle() {
+            // Stop and reset timer
+            clearInterval(timerInterval);
+            isRunning = false;
+            timer = 0;
+            timerDisplay.textContent = `Time: ${formatTime(timer)}`;
+
+            // Clear messages and reset message styling
+            messageDisplay.textContent = '';
+            messageDisplay.className = 'message';
+
+            isSolved = false;
+            highlightErrors = false; // Turn off error highlighting
+            // Enable all action buttons
+            showSolutionBtn.disabled = false;
+            getHintBtn.disabled = false;
+            checkMyWorkBtn.disabled = false;
+
+            // Create an empty 9x9 grid
+            let grid = Array(9).fill(0).map(() => Array(9).fill(0));
+
+            // Fill the grid with a complete solution
+            fillGrid(grid);
+
+            // Store this complete grid as the solution
+            solution = JSON.parse(JSON.stringify(grid));
+
+            // Determine number of cells to remove based on difficulty
+            let cellsToRemove;
+            switch (difficulty) {
+                case 'easy':
+                    cellsToRemove = 40;
+                    break;
+                case 'medium':
+                    cellsToRemove = 50;
+                    break;
+                case 'hard':
+                    cellsToRemove = 55; // Adjusted for more reliable generation
+                    break;
+                default:
+                    cellsToRemove = 40;
+            }
+
+            // Create a list of all cell coordinates to randomize removal order
+            const allCells = [];
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    allCells.push({ r, c });
+                }
+            }
+            shuffleArray(allCells); // Randomize the order of cells to try removing
+
+            let cellsRemovedSuccessfully = 0;
+            // Iterate through shuffled cells to remove numbers
+            for (const cell of allCells) {
+                if (cellsRemovedSuccessfully >= cellsToRemove) {
+                    break; // Stop if we've removed enough cells
+                }
+
+                const { r, c } = cell;
+                if (grid[r][c] !== 0) { // Only try to remove if it's not already empty
+                    const temp = grid[r][c];
+                    grid[r][c] = 0; // Temporarily remove the number
+
+                    const tempGrid = JSON.parse(JSON.stringify(grid));
+                    const solutionsFound = countSolutions(tempGrid);
+
+                    if (solutionsFound === 1) {
+                        cellsRemovedSuccessfully++; // Successfully removed a cell and kept uniqueness
+                    } else {
+                        grid[r][c] = temp; // Put the number back if it breaks uniqueness
+                    }
+                }
+            }
+
+            // Set current puzzle and initial puzzle states
+            puzzle = JSON.parse(JSON.stringify(grid));
+            initialPuzzle = JSON.parse(JSON.stringify(grid));
+            renderGrid(); // Draw the puzzle
+            startTimer(); // Start the timer
+        }
+
+        // Renders the Sudoku grid on the webpage
+        function renderGrid() {
+            sudokuGridElement.innerHTML = ''; // Clear existing cells
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cellValue = puzzle[r][c];
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.maxLength = '1';
+                    input.value = cellValue === 0 ? '' : cellValue;
+                    input.dataset.row = r;
+                    input.dataset.col = c;
+
+                    const isPreFilled = initialPuzzle[r][c] !== 0;
+                    if (isPreFilled) {
+                        input.classList.add('pre-filled');
+                        input.readOnly = true;
+                    } else {
+                        input.addEventListener('input', handleCellChange);
+                    }
+
+                    // Add thicker borders for 3x3 blocks
+                    if ((r + 1) % 3 === 0 && r !== 8) {
+                        input.style.borderBottomWidth = '3px';
+                    }
+                    if ((c + 1) % 3 === 0 && c !== 8) {
+                        input.style.borderRightWidth = '3px';
+                    }
+
+                    // Determine if a cell should be highlighted as incorrect
+                    const isUserEntered = puzzle[r][c] !== 0 && !isPreFilled;
+                    const isIncorrect = isUserEntered && puzzle[r][c] !== solution[r][c];
+
+                    // Apply 'incorrect' class based on highlightErrors flag or puzzle completion
+                    if ((highlightErrors || (isPuzzleComplete(puzzle) && !isSolved)) && isIncorrect) {
+                        input.classList.add('incorrect');
+                    } else {
+                        input.classList.remove('incorrect');
+                    }
+
+                    sudokuGridElement.appendChild(input);
+                }
+            }
+        }
+
+        // Handles user input in a Sudoku cell
+        function handleCellChange(event) {
+            if (isSolved) return; // Prevent input if solved
+
+            const input = event.target;
+            const rowIndex = parseInt(input.dataset.row);
+            const colIndex = parseInt(input.dataset.col);
+            const value = input.value;
+
+            // Prevent changing pre-filled numbers
+            if (initialPuzzle[rowIndex][colIndex] !== 0) {
+                messageDisplay.textContent = "Cannot change original numbers.";
+                messageDisplay.classList.add('error');
+                input.value = initialPuzzle[rowIndex][colIndex];
+                return;
+            }
+
+            const num = parseInt(value);
+            if (isNaN(num) || num < 1 || num > 9) {
+                puzzle[rowIndex][colIndex] = 0; // Treat invalid input as empty
+                input.value = '';
+            } else {
+                puzzle[rowIndex][colIndex] = num;
+            }
+
+            messageDisplay.textContent = ''; // Clear messages
+            messageDisplay.className = 'message'; // Reset message style
+
+            renderGrid(); // Update grid display
+
+            // Check if puzzle is solved after change
+            if (isPuzzleComplete(puzzle)) {
+                if (checkSolution(puzzle, solution)) {
+                    messageDisplay.textContent = "Puzzle Solved!";
+                    messageDisplay.classList.add('success');
+                    isSolved = true;
+                    stopTimer();
+                    // Disable all action buttons
+                    showSolutionBtn.disabled = true;
+                    getHintBtn.disabled = true;
+                    checkMyWorkBtn.disabled = true;
+                } else {
+                    messageDisplay.textContent = "Errors present.";
+                    messageDisplay.classList.add('error');
+                }
+            }
+        }
+
+        // Displays the complete solution
+        function handleShowSolution() {
+            puzzle = JSON.parse(JSON.stringify(solution)); // Copy solution to puzzle
+            renderGrid(); // Display solution
+            messageDisplay.textContent = "Solution displayed.";
+            messageDisplay.classList.add('success');
+            isSolved = true;
+            highlightErrors = false; // Turn off error highlighting
+            stopTimer();
+            // Disable all action buttons
+            showSolutionBtn.disabled = true;
+            getHintBtn.disabled = true;
+            checkMyWorkBtn.disabled = true;
+        }
+
+        // Provides a hint for a random empty cell
+        function handleGetHint() {
+            if (isSolved) {
+                messageDisplay.textContent = "Puzzle is already solved.";
+                messageDisplay.classList.add('success');
+                return;
+            }
+
+            highlightErrors = false; // Turn off error highlighting
+
+            // Find all empty cells
+            const emptyCells = [];
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (puzzle[r][c] === 0) {
+                        emptyCells.push({ row: r, col: c });
+                    }
+                }
+            }
+
+            if (emptyCells.length > 0) {
+                // Select a random empty cell
+                const randomIndex = Math.floor(Math.random() * emptyCells.length);
+                const { row: hintRow, col: hintCol } = emptyCells[randomIndex];
+
+                const correctValue = solution[hintRow][hintCol];
+                puzzle[hintRow][hintCol] = correctValue; // Fill the hint
+                renderGrid(); // Update grid to show hint
+                messageDisplay.textContent = `Hint: Placed ${correctValue} at (${hintRow + 1}, ${hintCol + 1}).`;
+                messageDisplay.classList.add('success');
+
+                // Check if puzzle is now solved
+                if (isPuzzleComplete(puzzle)) {
+                    if (checkSolution(puzzle, solution)) {
+                        messageDisplay.textContent = "Puzzle Solved!";
+                        messageDisplay.classList.add('success');
+                        isSolved = true;
+                        stopTimer();
+                        showSolutionBtn.disabled = true;
+                        getHintBtn.disabled = true;
+                        checkMyWorkBtn.disabled = true;
+                    }
+                }
+            } else {
+                messageDisplay.textContent = "No empty cells for hints.";
+                messageDisplay.classList.add('error');
+                getHintBtn.disabled = true;
+            }
+        }
+
+        // Toggles highlighting of incorrect numbers
+        function handleCheckMyWork() {
+            if (isSolved) {
+                messageDisplay.textContent = "Puzzle is already solved.";
+                messageDisplay.classList.add('success');
+                return;
+            }
+
+            // Toggle highlightErrors flag
+            highlightErrors = !highlightErrors;
+            renderGrid(); // Redraw grid to show/hide errors
+
+            if (highlightErrors) {
+                let errorCount = 0;
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        const isUserEntered = puzzle[r][c] !== 0 && initialPuzzle[r][c] === 0;
+                        if (isUserEntered && puzzle[r][c] !== solution[r][c]) {
+                            errorCount++;
+                        }
+                    }
+                }
+
+                if (errorCount === 0) {
+                    messageDisplay.textContent = "No errors found.";
+                    messageDisplay.classList.add('success');
+                } else {
+                    messageDisplay.textContent = `${errorCount} error(s) found.`;
+                    messageDisplay.classList.add('error');
+                }
+            } else {
+                messageDisplay.textContent = "Error highlighting off.";
+                messageDisplay.className = 'message'; // Reset message style
+            }
+        }
+
+        // Starts the game timer
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            isRunning = true;
+            timerInterval = setInterval(() => {
+                timer++;
+                timerDisplay.textContent = `Time: ${formatTime(timer)}`;
+            }, 1000); // Update every 1 second
+        }
+
+        // Stops the game timer
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+        }
+
+        // Toggles between light and dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            darkModeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+
+        // --- Event Listeners ---
+        // When difficulty changes, generate a new puzzle
+        difficultySelect.addEventListener('change', (e) => {
+            difficulty = e.target.value;
+            generateNewPuzzle();
+        });
+
+        // Event listener for New Game button
+        newGameBtn.addEventListener('click', generateNewPuzzle);
+        // Event listener for Get Hint button
+        getHintBtn.addEventListener('click', handleGetHint);
+        // Event listener for Check My Work button
+        checkMyWorkBtn.addEventListener('click', handleCheckMyWork);
+        // Event listener for Show Solution button
+        showSolutionBtn.addEventListener('click', handleShowSolution);
+        // Event listener for Dark Mode button
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+
+        // --- Initial Setup ---
+        // Generate a puzzle when the page first loads
+        window.onload = generateNewPuzzle;
+    </script>
+</body>
+</html>
